@@ -1,12 +1,12 @@
 # 🥶📝 cold-note: a fast note-creating CLI tool
 
-cold-note is a lightweight and customizable command-line tool designed to streamline note creation and organization for Obsidian users. With built-in templating, metadata handling, and Neovim integration, it helps you create structured notes efficiently.
+`cold-note` is a lightweight and customizable command-line tool designed to streamline note creation and organization for Obsidian users. With built-in templating, metadata handling, and Neovim integration, it helps you create structured notes efficiently.
 
 ![Demo](public/gif/cold-note.gif)
 
 ---
 
-### ✨ Features
+## ✨ Features
 
 🚀 Quick Note Creation – Stylish and functional interface powered by [charmbracelet/huh](https://github.com/charmbracelet/huh).
 
@@ -22,7 +22,7 @@ cold-note is a lightweight and customizable command-line tool designed to stream
 
 ---
 
-### 🛠 Requirements
+## 🛠 Requirements
 
 - Go 1.21+
 - Neovim
@@ -31,7 +31,7 @@ cold-note is a lightweight and customizable command-line tool designed to stream
 
 ---
 
-### Installation
+## Installation
 
 To use this program your need to first clone [this repository](https://github.com/peruzzoarthur/cold-note).
 
@@ -47,14 +47,16 @@ go build -o note cmd/note/main.go
 sudo mv note /usr/local/bin/
 ```
 
-In order to find the Obsidian vault and be able to import the templates for the .md files, declare the environment variables in your shell config file.
+In order to find the Obsidian vault and be able to import the templates for the .md files, declare the environment variables inside your shell config file.
 
 ```bash
-echo 'export OBSIDIAN_VAULT="/home/user/vault/path"' >> ~/.zshrc # adjust filename for your shell config file
+echo 'export OBSIDIAN_VAULT="/home/user/vault/path"' >> ~/.zshrc
 echo 'export OBSIDIAN_TEMPLATES="/home/user/templates/path"' >> ~/.zshrc
+
+# adjust filename to your shell config file (`.bashrc`)
 ```
 
-All Done! `cold-note` is now installed and configured. It can be run using:
+All done! `cold-note` is now installed and configured. It can be run using:
 
 ```bash
 note
