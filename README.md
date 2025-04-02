@@ -1,10 +1,10 @@
-# 🥶📝 Cold-Note: A Fast Note-Creating CLI Tool
+# 🥶📝 cold-note: A Fast Note-Creating CLI Tool
 
-Cold-Note is a lightweight and customizable command-line tool designed to streamline note creation and organization for Obsidian users. With built-in templating, metadata handling, and Neovim integration, it helps you create structured notes efficiently.
+cold-note is a lightweight and customizable command-line tool designed to streamline note creation and organization for Obsidian users. With built-in templating, metadata handling, and Neovim integration, it helps you create structured notes efficiently.
 
 ### ✨ Features
 
-🚀 Quick Note Creation – Stylish Interface powered by [charmbracelet-huh](https://github.com/charmbracelet/huh).
+🚀 Quick Note Creation – Stylish and functional interface powered by [charmbracelet/huh](https://github.com/charmbracelet/huh).
 
 📁 Smart Directory Management – Automatically selects organized vault directories.
 
@@ -27,18 +27,16 @@ Cold-Note is a lightweight and customizable command-line tool designed to stream
 
 # Install and run
 
-To use this program your need to first clone [this repository](https://github.com/peruzzoarthur/go-note).
+To use this program your need to first clone [this repository](https://github.com/peruzzoarthur/cold-note).
 
 ```bash
-
-git clone https://github.com/peruzzoarthur/go-note.git
-
+git clone https://github.com/peruzzoarthur/cold-note.git
 ```
 
 Then change into the cloned project, run build and move the binary file to your binaries path.
 
 ```bash
-cd go-note
+cd cold-note
 go build -o note cmd/note/main.go
 sudo mv note /usr/local/bin/
 ```
@@ -50,14 +48,13 @@ echo 'export OBSIDIAN_VAULT="/home/user/vault/path"' >> ~/.zshrc # adjust filena
 echo 'export OBSIDIAN_TEMPLATES="/home/user/templates/path"' >> ~/.zshrc
 ```
 
-All Done! Cold-note is now installed and configured. It can be run using:
+All Done! `cold-note` is now installed and configured. It can be run using:
 
 ```bash
-
 note
-
 ```
 
 > [!WARNING]
 > The module default configuration strictly focuses on directories starting with numbers (a common Obsidian organization pattern).
 > In other words: 'the directories where you create your notes must start with a number'. e.g. '00-inbox', '1-projects'
+
