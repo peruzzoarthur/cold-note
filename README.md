@@ -1,6 +1,10 @@
-# 🥶📝 cold-note: A Fast Note-Creating CLI Tool
+# 🥶📝 cold-note: a fast note-creating CLI tool
 
 cold-note is a lightweight and customizable command-line tool designed to streamline note creation and organization for Obsidian users. With built-in templating, metadata handling, and Neovim integration, it helps you create structured notes efficiently.
+
+![Demo](public/gif/cold-note.gif)
+
+---
 
 ### ✨ Features
 
@@ -16,6 +20,8 @@ cold-note is a lightweight and customizable command-line tool designed to stream
 
 ⚡ Environment-Based Configuration – Uses OBSIDIAN_VAULT and OBSIDIAN_TEMPLATES for flexibility.
 
+---
+
 ### 🛠 Requirements
 
 - Go 1.21+
@@ -23,9 +29,9 @@ cold-note is a lightweight and customizable command-line tool designed to stream
 - Obsidian
 - Properly set environment variables (OBSIDIAN_VAULT, OBSIDIAN_TEMPLATES)
 
-![Demo](public/gif/cold-note.gif)
+---
 
-# Install and run
+### Installation
 
 To use this program your need to first clone [this repository](https://github.com/peruzzoarthur/cold-note).
 
@@ -57,4 +63,3 @@ note
 > [!WARNING]
 > The module default configuration strictly focuses on directories starting with numbers (a common Obsidian organization pattern).
 > In other words: 'the directories where you create your notes must start with a number'. e.g. '00-inbox', '1-projects'
-
