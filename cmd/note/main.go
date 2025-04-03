@@ -43,6 +43,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	editorPreference := os.Getenv("COLD_NOTE_EDITOR")
+	if editorPreference == "" {
+		editorPreference = "nvim-zen"
+	}
+
 	// Initialize metadata with empty values
 	meta := metadata.Metadata{
 		Tags:    []string{},
@@ -84,7 +89,7 @@ func main() {
 		templateOptions[i] = huh.NewOption(tmpl, tmpl)
 	}
 
-	// Display header 
+	// Display header
 	// fmt.Println(printHeader())
 
 	var catppuccin *huh.Theme = huh.ThemeCatppuccin()
@@ -220,10 +225,28 @@ func main() {
 	fmt.Println(successStyle.Render(fmt.Sprintf("\nCreated note at %s", createdFilePath)))
 
 	// Exec neovim for editing the note
-	cmd := exec.Command("nvim", "+ normal ggzzi", createdFilePath, "-c", ":ZenMode")
+	// cmd := exec.Command("nvim", "+ normal ggzzi", createdFilePath, "-c", ":ZenMode")
+
+	// Open the note with the selected editor
+	var cmd *exec.Cmd
+
+	switch editorPreference {
+	case "nvim-zen":
+		fmt.Println(successStyle.Render("Opening note with Neovim + ZenMode..."))
+		cmd = exec.Command("nvim", "+ normal ggzzi", createdFilePath, "-c", ":ZenMode")
+	case "nvim":
+		fmt.Println("Opening note with Neovim...")
+		cmd = exec.Command("nvim", createdFilePath)
+	case "vscode":
+		fmt.Println("Opening note with VSCode...")
+		cmd = exec.Command("code", createdFilePath)
+	default:
+		fmt.Println("Opening note with Neovim + ZenMode (default)...")
+		cmd = exec.Command("nvim", "+ normal ggzzi", createdFilePath, "-c", ":ZenMode")
+	}
+
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	fmt.Println("Opening note...")
 	cmd.Run()
 }

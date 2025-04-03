@@ -18,7 +18,7 @@
 
 💻 Seamless Editor Integration – Opens notes in Neovim Zen Mode for focused writing.
 
-⚡ Environment-Based Configuration – Uses OBSIDIAN_VAULT and OBSIDIAN_TEMPLATES for flexibility.
+⚡ Environment-Based Configuration – Uses OBSIDIAN_VAULTO, OBSIDIAN_TEMPLATES and COLD_NOTE_EDITOR for flexibility.
 
 ---
 
@@ -27,7 +27,7 @@
 - Go 1.21+
 - Neovim
 - Obsidian
-- Properly set environment variables (OBSIDIAN_VAULT, OBSIDIAN_TEMPLATES)
+- Properly set environment variables (OBSIDIAN_VAULT, OBSIDIAN_TEMPLATES and COLD_NOTE_EDITOR)
 
 ---
 
@@ -52,9 +52,17 @@ In order to find the Obsidian vault and be able to import the templates for the 
 ```bash
 echo 'export OBSIDIAN_VAULT="/home/user/vault/path"' >> ~/.zshrc
 echo 'export OBSIDIAN_TEMPLATES="/home/user/templates/path"' >> ~/.zshrc
+echo 'export COLD_NOTE_EDITOR="nvim-zen"' # or "nvim" or "vscode"
 
 # adjust filename to your shell config file (`.bashrc`)
 ```
+
+> [!TIP]
+> COLD_NOTE_EDITOR variable can be set to:
+>  - `nvim-zen`: Neovim with ZenMode (default behavior)
+>  - `nvim`: Standard Neovim without ZenMode
+>  - `vscode`: Visual Studio Code
+
 
 All done! `cold-note` is now installed and configured. It can be run using:
 
