@@ -111,7 +111,7 @@ func main() {
 		huh.NewGroup(
 			huh.NewSelect[string]().
 				Title("Select Directory").
-				Description("Choose where to save your note").
+				Description("Choose directory to save your note").
 				Options(dirOptions...).
 				Value(&selectedDir),
 
@@ -143,7 +143,7 @@ func main() {
 	}
 
 	// Process the form data
-	meta.Title = strings.ReplaceAll(filename, "-", " ")
+	meta.Title = filename
 
 	// Process tags
 	if tagsInput != "" {
@@ -190,6 +190,7 @@ func main() {
 
 	// Create spinner for note creation
 	createNote := func() {
+
 		// Create the note file
 		fullPath := filepath.Join(fullDirPath, filename+".md")
 		if _, err := os.Stat(fullPath); err == nil {
@@ -216,32 +217,32 @@ func main() {
 		Action(createNote).
 		Run()
 
-	// Print success message with styling
-	successStyle := lipgloss.NewStyle().
+	greenStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color(catppuccingo.Mocha.Green().Hex)).
 		Bold(true)
 
-	createdFilePath := filepath.Join(fullDirPath, filename+".md")
-	fmt.Println(successStyle.Render(fmt.Sprintf("\nCreated note at %s", createdFilePath)))
+	lavenderStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color(catppuccingo.Mocha.Lavender().Hex)).
+		Bold(true)
 
-	// Exec neovim for editing the note
-	// cmd := exec.Command("nvim", "+ normal ggzzi", createdFilePath, "-c", ":ZenMode")
+	createdFilePath := filepath.Join(fullDirPath, filename+".md")
+	fmt.Println(greenStyle.Render(fmt.Sprintf("\nCreated note at %s", createdFilePath)))
 
 	// Open the note with the selected editor
 	var cmd *exec.Cmd
 
 	switch editorPreference {
 	case "nvim-zen":
-		fmt.Println(successStyle.Render("Opening note with Neovim + ZenMode..."))
+		fmt.Println(lavenderStyle.Render("Opening note with Neovim (ZenMode)"))
 		cmd = exec.Command("nvim", "+ normal ggzzi", createdFilePath, "-c", ":ZenMode")
 	case "nvim":
-		fmt.Println("Opening note with Neovim...")
+		fmt.Println(lavenderStyle.Render("Opening note with Neovim"))
 		cmd = exec.Command("nvim", createdFilePath)
 	case "vscode":
-		fmt.Println("Opening note with VSCode...")
+		fmt.Println(lavenderStyle.Render("Opening note with VSCode"))
 		cmd = exec.Command("code", createdFilePath)
 	default:
-		fmt.Println("Opening note with Neovim + ZenMode (default)...")
+		fmt.Println(lavenderStyle.Render("Opening note with Neovim + ZenMode (default)"))
 		cmd = exec.Command("nvim", "+ normal ggzzi", createdFilePath, "-c", ":ZenMode")
 	}
 
