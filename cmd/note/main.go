@@ -61,7 +61,10 @@ func main() {
 		Foreground(lipgloss.Color(catppuccingo.Mocha.Lavender().Hex)).
 		Bold(true)
 
-	redStyle := lipgloss.NewStyle().Foreground(lipgloss.Color(catppuccingo.Mocha.Red().Hex)).Bold(true)
+	redStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color(catppuccingo.Mocha.Red().Hex)).
+		Bold(true)
+
 	// Get directories for selection
 	dirs, err := file.GetDirectories(obsidianDir)
 	if err != nil {
