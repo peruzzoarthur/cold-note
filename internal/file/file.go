@@ -1,9 +1,12 @@
 package file
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/charmbracelet/huh"
 )
 
 func GetDirectories(obsidianDir string) ([]string, error) {
@@ -55,4 +58,31 @@ func ReadTemplateContent(templatePath string) (string, error) {
 		return "", fmt.Errorf("error reading template: %w", err)
 	}
 	return string(content), nil
+}
+
+// TagOption represents a tag entry in the JSON file
+type TagOption struct {
+	Name     string `json:"name"`
+	Value    string `json:"value"`
+	Selected bool   `json:"selected"`
+}
+
+// LoadTagsFromJSON loads tag options from a JSON file
+func LoadTagsFromJSON(filePath string) ([]huh.Option[string], error) {
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("error reading tags file: %w", err)
+	}
+
+	var tagOptions []TagOption
+	if err := json.Unmarshal(data, &tagOptions); err != nil {
+		return nil, fmt.Errorf("error parsing tags JSON: %w", err)
+	}
+
+	options := make([]huh.Option[string], 0, len(tagOptions))
+	for _, tag := range tagOptions {
+		options = append(options, huh.NewOption(tag.Name, tag.Value).Selected(tag.Selected))
+	}
+
+	return options, nil
 }

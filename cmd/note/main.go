@@ -15,20 +15,8 @@ import (
 	"github.com/peruzzoarthur/go-note/internal/metadata"
 )
 
-// func printHeader() string {
-// 	headerStyle := lipgloss.NewStyle().
-// 		Bold(true).
-// 		Foreground(lipgloss.Color(catppuccingo.Mocha.Text().Hex)).
-// 		BorderStyle(lipgloss.RoundedBorder()).
-// 		BorderForeground(lipgloss.Color(catppuccingo.Mocha.Lavender().Hex)).
-// 		Padding(1, 1)
-//
-// 	return headerStyle.Render(`
-// cold-note: A command-line tool integrated with Obsidian for fast note creation with metadata 🥶📝
-// `)
-// }
-
 func main() {
+
 	// Ensure obsidian vault dir is set
 	obsidianDir := os.Getenv("OBSIDIAN_VAULT")
 	if obsidianDir == "" {
@@ -43,9 +31,10 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Get editor of choice (if empty default to nvim)
 	editorPreference := os.Getenv("COLD_NOTE_EDITOR")
 	if editorPreference == "" {
-		editorPreference = "nvim-zen"
+		editorPreference = "nvim"
 	}
 
 	// Initialize metadata with empty values
@@ -59,10 +48,20 @@ func main() {
 		filename     string
 		selectedDir  string
 		templateName string
-		tagsInput    string
+		tagsInput    []string
 		aliasesInput string
 	)
 
+	// Log styles
+	greenStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color(catppuccingo.Mocha.Green().Hex)).
+		Bold(true)
+
+	lavenderStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color(catppuccingo.Mocha.Lavender().Hex)).
+		Bold(true)
+
+	redStyle := lipgloss.NewStyle().Foreground(lipgloss.Color(catppuccingo.Mocha.Red().Hex)).Bold(true)
 	// Get directories for selection
 	dirs, err := file.GetDirectories(obsidianDir)
 	if err != nil {
@@ -89,8 +88,14 @@ func main() {
 		templateOptions[i] = huh.NewOption(tmpl, tmpl)
 	}
 
-	// Display header
-	// fmt.Println(printHeader())
+	// Load tags from JSON file
+	tagsFilePath := filepath.Join(obsidianDir, "tags.json") // Adjust path as needed
+	tagOptions, err := file.LoadTagsFromJSON(tagsFilePath)
+	if err != nil {
+		// If there's an error loading tags, fall back to default tags
+		fmt.Printf(redStyle.Render("Warning: Could not load tags from JSON: %v\n"), err)
+		os.Exit(1)
+	}
 
 	var catppuccin *huh.Theme = huh.ThemeCatppuccin()
 	// Create the form
@@ -122,10 +127,10 @@ func main() {
 				Value(&templateName),
 		),
 		huh.NewGroup(
-			huh.NewInput().
+			huh.NewMultiSelect[string]().
 				Title("Tags").
-				Description("Enter comma-separated tags").
-				Placeholder("golang,notes,ideas").
+				Description("Select tags for your note").
+				Options(tagOptions...).
 				Value(&tagsInput),
 
 			huh.NewInput().
@@ -145,15 +150,8 @@ func main() {
 	// Process the form data
 	meta.Title = filename
 
-	// Process tags
-	if tagsInput != "" {
-		for _, tag := range strings.Split(tagsInput, ",") {
-			trimmedTag := strings.TrimSpace(tag)
-			if trimmedTag != "" {
-				meta.Tags = append(meta.Tags, trimmedTag)
-			}
-		}
-	}
+	// Tags are already processed as a slice
+	meta.Tags = tagsInput
 
 	// Process aliases
 	if aliasesInput != "" {
@@ -163,16 +161,6 @@ func main() {
 				meta.Aliases = append(meta.Aliases, trimmedAlias)
 			}
 		}
-	}
-
-	// If tags are empty, add default tags
-	if len(meta.Tags) == 0 {
-		meta.Tags = []string{"tag1", "tag2", "tag3"}
-	}
-
-	// If aliases are empty, add default aliases
-	if len(meta.Aliases) == 0 {
-		meta.Aliases = []string{"aliases1", "aliases2"}
 	}
 
 	// Full directory path
@@ -188,9 +176,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Create spinner for note creation
+	// Create note creation function for the spinner
 	createNote := func() {
-
 		// Create the note file
 		fullPath := filepath.Join(fullDirPath, filename+".md")
 		if _, err := os.Stat(fullPath); err == nil {
@@ -217,14 +204,6 @@ func main() {
 		Action(createNote).
 		Run()
 
-	greenStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color(catppuccingo.Mocha.Green().Hex)).
-		Bold(true)
-
-	lavenderStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color(catppuccingo.Mocha.Lavender().Hex)).
-		Bold(true)
-
 	createdFilePath := filepath.Join(fullDirPath, filename+".md")
 	fmt.Println(greenStyle.Render(fmt.Sprintf("\nCreated note at %s", createdFilePath)))
 
@@ -237,13 +216,13 @@ func main() {
 		cmd = exec.Command("nvim", "+ normal ggzzi", createdFilePath, "-c", ":ZenMode")
 	case "nvim":
 		fmt.Println(lavenderStyle.Render("Opening note with Neovim"))
-		cmd = exec.Command("nvim", createdFilePath)
+		cmd = exec.Command("nvim", "+ normal ggzzi", createdFilePath)
 	case "vscode":
 		fmt.Println(lavenderStyle.Render("Opening note with VSCode"))
 		cmd = exec.Command("code", createdFilePath)
 	default:
 		fmt.Println(lavenderStyle.Render("Opening note with Neovim + ZenMode (default)"))
-		cmd = exec.Command("nvim", "+ normal ggzzi", createdFilePath, "-c", ":ZenMode")
+		cmd = exec.Command("nvim", "+ normal ggzzi", createdFilePath)
 	}
 
 	cmd.Stdin = os.Stdin
