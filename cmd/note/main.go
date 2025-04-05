@@ -16,7 +16,6 @@ import (
 )
 
 func main() {
-
 	// Ensure obsidian vault dir is set
 	obsidianDir := os.Getenv("OBSIDIAN_VAULT")
 	if obsidianDir == "" {
@@ -65,6 +64,10 @@ func main() {
 		Foreground(lipgloss.Color(catppuccingo.Mocha.Red().Hex)).
 		Bold(true)
 
+	yellowStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color(catppuccingo.Mocha.Yellow().Hex)).
+		Bold(true)
+
 	// Get directories for selection
 	dirs, err := file.GetDirectories(obsidianDir)
 	if err != nil {
@@ -91,18 +94,27 @@ func main() {
 		templateOptions[i] = huh.NewOption(tmpl, tmpl)
 	}
 
-	// Load tags from JSON file
-	tagsFilePath := filepath.Join(obsidianDir, "tags.json") // Adjust path as needed
-	tagOptions, err := file.LoadTagsFromJSON(tagsFilePath)
-	if err != nil {
-		// If there's an error loading tags, fall back to default tags
-		fmt.Printf(redStyle.Render("Warning: Could not load tags from JSON: %v\n"), err)
-		os.Exit(1)
+	// Path for tags JSON file
+	tagsFilePath := filepath.Join(obsidianDir, "tags.json")
+
+	// Function to load tags from JSON file
+	loadTags := func() []huh.Option[string] {
+		tagOptions, err := file.LoadTagsFromJSON(tagsFilePath)
+		if err != nil {
+			fmt.Printf(yellowStyle.Render("Warning: Could not load tags from JSON: %v\n"), err)
+			fmt.Println("A new tags.json file will be created if you add a new tag.")
+			return []huh.Option[string]{}
+		}
+		return tagOptions
 	}
 
+	// Initial load of tags
+	tagOptions := loadTags()
+
 	var catppuccin *huh.Theme = huh.ThemeCatppuccin()
-	// Create the form
-	form := huh.NewForm(
+
+	// First part of the form - filename and directories
+	form1 := huh.NewForm(
 		huh.NewGroup(
 			huh.NewInput().
 				Title("Note Filename").
@@ -129,13 +141,97 @@ func main() {
 				Options(templateOptions...).
 				Value(&templateName),
 		),
-		huh.NewGroup(
-			huh.NewMultiSelect[string]().
-				Title("Tags").
-				Description("Select tags for your note").
-				Options(tagOptions...).
-				Value(&tagsInput),
+	).WithTheme(catppuccin)
 
+	err = form1.Run()
+	if err != nil {
+		fmt.Println("Error:", err)
+		os.Exit(1)
+	}
+
+	// Tag management form - can be run multiple times
+	for {
+		var createNewTag bool
+
+		// Form for selecting existing tags and deciding whether to create new ones
+		tagSelectionForm := huh.NewForm(
+			huh.NewGroup(
+				huh.NewMultiSelect[string]().
+					Title("Tags").
+					Description("Select tags for your note").
+					Options(tagOptions...).
+					Value(&tagsInput),
+
+				huh.NewConfirm().
+					Title("Create New Tag?").
+					Description("Do you want to create a new tag?").
+					Value(&createNewTag),
+			),
+		).WithTheme(catppuccin)
+
+		err = tagSelectionForm.Run()
+		if err != nil {
+			fmt.Println("Error:", err)
+			os.Exit(1)
+		}
+
+		// Break out of the loop if user doesn't want to create a new tag
+		if !createNewTag {
+			break
+		}
+
+		// If user wants to create a new tag, show the tag creation form
+		var newTagName, newTagValue string
+
+		tagForm := huh.NewForm(
+			huh.NewGroup(
+				huh.NewInput().
+					Title("Tag Name").
+					Description("Enter a display name for your tag").
+					Placeholder("Programming").
+					Validate(func(s string) error {
+						if strings.TrimSpace(s) == "" {
+							return fmt.Errorf("tag name cannot be empty")
+						}
+						return nil
+					}).
+					Value(&newTagName),
+
+				huh.NewInput().
+					Title("Tag Value").
+					Description("Enter a value for your tag (used internally)").
+					Placeholder("programming").
+					Validate(func(s string) error {
+						if strings.TrimSpace(s) == "" {
+							return fmt.Errorf("tag value cannot be empty")
+						}
+						return nil
+					}).
+					Value(&newTagValue),
+			),
+		).WithTheme(catppuccin)
+
+		err = tagForm.Run()
+		if err != nil {
+			fmt.Println("Error:", err)
+			os.Exit(1)
+		}
+
+		// Save the new tag to the JSON file
+		err = file.SaveTagToJSON(tagsFilePath, newTagName, newTagValue)
+		if err != nil {
+			fmt.Printf(redStyle.Render("Error saving tag: %v\n"), err)
+		} else {
+			fmt.Println(greenStyle.Render(fmt.Sprintf("Successfully created tag: %s", newTagName)))
+		}
+
+		// Reload tags to include the newly created one
+		tagOptions = loadTags()
+	}
+
+	// Final form for aliases
+	aliasesForm := huh.NewForm(
+		huh.NewGroup(
 			huh.NewInput().
 				Title("Aliases").
 				Description("Enter comma-separated aliases").
@@ -144,7 +240,7 @@ func main() {
 		),
 	).WithTheme(catppuccin)
 
-	err = form.Run()
+	err = aliasesForm.Run()
 	if err != nil {
 		fmt.Println("Error:", err)
 		os.Exit(1)
